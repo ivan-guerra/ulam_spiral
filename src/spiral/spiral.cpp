@@ -1,7 +1,6 @@
 #include "spiral/spiral.h"
 
 #include <cmath>
-#include <cstddef>
 #include <optional>
 
 namespace ulam {
@@ -25,42 +24,50 @@ struct Position {
 }
 
 std::optional<SquareLattice> GenerateUlamSpiral(int dim) {
+  /* The implementation that follows is a slightly tweaked version of the
+   * algorithm given here:
+   * https://www.geeksforgeeks.org/print-a-given-matrix-in-spiral-form/# */
+
   if (dim <= 0) { /* invalid dimension */
     return std::nullopt;
   }
 
   const std::vector<Position> kDirections = {
-      {.row = 0, .col = 1},
-      {.row = 1, .col = 0},
-      {.row = 0, .col = -1},
-      {.row = -1, .col = 0},
+      {.row = 0, .col = 1},  /* east  */
+      {.row = 1, .col = 0},  /* south */
+      {.row = 0, .col = -1}, /* west */
+      {.row = -1, .col = 0}, /* north */
   };
 
   SquareLattice spiral(dim, RowVect(dim, 0));
-  Position curr_pos = {.row = 0, .col = 0};
-  int di = 0;
-  std::size_t value = dim * dim;
-  std::vector<std::vector<bool>> seen(dim, std::vector<bool>(dim, false));
+  Position pos = {.row = 0, .col = 0};
+  int dir_index = 0;
+  int value = dim * dim;
+  std::vector<std::vector<bool>> visited(dim, std::vector<bool>(dim, false));
   for (int i = 0; i < dim * dim; ++i) {
+    /* We always write a number. If value is prime, we write value, otherwise,
+     * we write 0 as a placeholder. Note how we spiral inwards so that larger
+     * numbers are on the outside of the spiral and smaller ones are closer to
+     * the center. */
     if (IsPrime(value)) {
-      spiral[curr_pos.row][curr_pos.col] = value;
+      spiral[pos.row][pos.col] = value;
     } else {
-      spiral[curr_pos.row][curr_pos.col] = 0;
+      spiral[pos.row][pos.col] = 0;
     }
     value--;
 
-    seen[curr_pos.row][curr_pos.col] = true;
+    visited[pos.row][pos.col] = true;
 
-    int row = curr_pos.row + kDirections[di].row;
-    int col = curr_pos.col + kDirections[di].col;
+    int row = pos.row + kDirections[dir_index].row;
+    int col = pos.col + kDirections[dir_index].col;
     if ((row >= 0) && (row < dim) && (col >= 0) && (col < dim) &&
-        !seen[row][col]) {
-      curr_pos.row = row;
-      curr_pos.col = col;
-    } else {
-      di = (di + 1) % kDirections.size();
-      curr_pos.row += kDirections[di].row;
-      curr_pos.col += kDirections[di].col;
+        !visited[row][col]) { /* Continue moving in the current direction. */
+      pos.row = row;
+      pos.col = col;
+    } else { /* A change in direction is required. */
+      dir_index = (dir_index + 1) % kDirections.size();
+      pos.row += kDirections[dir_index].row;
+      pos.col += kDirections[dir_index].col;
     }
   }
   return spiral;
