@@ -1,0 +1,53 @@
+#------------------------------------------------------------------------------
+# Project related configuration options
+#------------------------------------------------------------------------------
+
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = "Ulam Spiral"
+PROJECT_NUMBER         =
+PROJECT_BRIEF          = "Ulam Spiral Visualization"
+OUTPUT_DIRECTORY       = @CMAKE_CURRENT_SOURCE_DIR@/
+CREATE_SUBDIRS         = NO
+OUTPUT_LANGUAGE        = English
+BRIEF_MEMBER_DESC      = YES
+REPEAT_BRIEF           = YES
+DISABLE_INDEX          = YES
+GENERATE_TREEVIEW      = YES
+FULL_SIDEBAR           = YES
+GENERATE_LATEX         = NO
+
+#------------------------------------------------------------------------------
+# Build related configuration options
+#------------------------------------------------------------------------------
+
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_PACKAGE        = YES
+EXTRACT_STATIC         = YES
+CASE_SENSE_NAMES       = YES
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+PREDEFINED             = __declspec(x)=
+
+#------------------------------------------------------------------------------
+# Configuration options related to warning and progress messages
+#------------------------------------------------------------------------------
+
+QUIET                  = NO
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = NO
+WARN_AS_ERROR          = NO
+
+#------------------------------------------------------------------------------
+# Configuration options related to the input files
+#------------------------------------------------------------------------------
+
+INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/../include/ \
+                         @CMAKE_CURRENT_SOURCE_DIR@/../README.md
+USE_MDFILE_AS_MAINPAGE = README.md
+FILE_PATTERNS          = *.h *.md
+RECURSIVE              = YES
+EXCLUDE                =
