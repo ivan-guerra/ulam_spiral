@@ -33,14 +33,14 @@ std::optional<SquareLattice> GenerateUlamSpiral(int dim) {
   }
 
   const std::vector<Position> kDirections = {
-      {.row = 0, .col = 1},  /* east  */
-      {.row = 1, .col = 0},  /* south */
       {.row = 0, .col = -1}, /* west */
       {.row = -1, .col = 0}, /* north */
+      {.row = 0, .col = 1},  /* east  */
+      {.row = 1, .col = 0},  /* south */
   };
 
   SquareLattice spiral(dim, RowVect(dim, 0));
-  Position pos = {.row = 0, .col = 0};
+  Position pos = {.row = dim - 1, .col = dim - 1};
   int dir_index = 0;
   int value = dim * dim;
   std::vector<std::vector<bool>> visited(dim, std::vector<bool>(dim, false));
