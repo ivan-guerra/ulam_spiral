@@ -33,9 +33,9 @@ SquareLattice GenerateUlamSpiral(int dim) {
 
   SquareLattice spiral(dim, RowVect(dim, 0));
   Position curr_pos = {.row = 0, .col = 0};
-  std::vector<std::vector<bool>> seen(dim, std::vector<bool>(dim, false));
-  std::size_t value = dim * dim;
   int di = 0;
+  std::size_t value = dim * dim;
+  std::vector<std::vector<bool>> seen(dim, std::vector<bool>(dim, false));
   for (int i = 0; i < dim * dim; ++i) {
     if (IsPrime(value)) {
       spiral[curr_pos.row][curr_pos.col] = value;
@@ -58,7 +58,6 @@ SquareLattice GenerateUlamSpiral(int dim) {
       curr_pos.col += kDirections[di].col;
     }
   }
-
   return spiral;
 }
 
