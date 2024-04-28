@@ -1,0 +1,14 @@
+# Ignore the bin directory if it exists.
+bin
+
+# Ignore CMake build directories.
+/build*
+
+# Ignore CMake compile commands file used by clang-tidy.
+compile_commands.json
+
+# Ignore clang's symbol cache.
+.cache
+
+# Ignore project docs.
+docs/html
