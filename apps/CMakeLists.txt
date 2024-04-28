@@ -9,6 +9,6 @@ add_executable(${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME} PRIVATE uspiral.cpp)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC spiral)
+target_link_libraries(${PROJECT_NAME} PUBLIC graphics spiral)
 
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${US_BIN_DIR})
