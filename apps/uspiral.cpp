@@ -23,12 +23,12 @@ int main(int argc, char** argv) {
 
   int opt = 0;
   int long_index = 0;
-  std::size_t dim = 201;
+  int dim = 201;
   while (-1 !=
          (opt = ::getopt_long(argc, argv, "d:h", &longopts[0], &long_index))) {
     switch (opt) {
       case 'd':
-        dim = std::stoull(optarg);
+        dim = std::stoi(optarg);
         break;
       case 'h':
         PrintUsage();
@@ -38,8 +38,12 @@ int main(int argc, char** argv) {
     }
   }
 
-  ulam::SquareLattice ulam_mat = ulam::GenerateUlamSpiral(dim);
-  /* TODO: Add visualization code. */
-
+  auto ulam_mat = ulam::GenerateUlamSpiral(dim);
+  if (ulam_mat) {
+    /* TODO: Add visualization code. */
+  } else {
+    std::cerr << "error: invalid dimension " << dim << std::endl;
+    std::exit(EXIT_FAILURE);
+  }
   std::exit(EXIT_SUCCESS);
 }

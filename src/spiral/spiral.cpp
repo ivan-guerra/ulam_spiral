@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <cstddef>
+#include <optional>
 
 namespace ulam {
 
@@ -23,7 +24,11 @@ struct Position {
   return true;
 }
 
-SquareLattice GenerateUlamSpiral(int dim) {
+std::optional<SquareLattice> GenerateUlamSpiral(int dim) {
+  if (dim <= 0) { /* invalid dimension */
+    return std::nullopt;
+  }
+
   const std::vector<Position> kDirections = {
       {.row = 0, .col = 1},
       {.row = 1, .col = 0},
