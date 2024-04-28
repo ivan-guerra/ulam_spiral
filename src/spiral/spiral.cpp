@@ -10,7 +10,7 @@ struct Position {
   int col = 0;
 };
 
-bool IsPrime(int n) {
+[[nodiscard]] static bool IsPrime(int n) {
   if (n <= 1) {
     return false;
   }
