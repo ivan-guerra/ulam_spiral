@@ -1,13 +1,33 @@
 #include "spiral/spiral.h"
 
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <functional>
 #include <optional>
+#include <unordered_set>
 
 namespace ulam {
 
 struct Position {
-  int row = 0;
-  int col = 0;
+  int32_t row = 0;
+  int32_t col = 0;
+
+  friend bool operator==(const Position& a, const Position& b) {
+    return (a.row == b.row) && (a.col == b.col);
+  }
+
+  friend Position operator+(const Position& a, const Position& b) {
+    return {.row = a.row + b.row, .col = a.col + b.col};
+  }
+};
+
+struct PositionHash {
+  std::size_t operator()(const Position& pos) const {
+    uint64_t val = pos.row;
+    val = (val << 32) | pos.col;
+    return std::hash<std::size_t>{}(val);
+  }
 };
 
 [[nodiscard]] static bool IsPrime(int n) {
@@ -21,6 +41,11 @@ struct Position {
     }
   }
   return true;
+}
+
+[[nodiscard]] bool IsInBounds(const Position& pos, int dim) {
+  return ((pos.row >= 0) && (pos.row < dim) && (pos.col >= 0) &&
+          (pos.col < dim));
 }
 
 std::optional<SquareLattice> GenerateUlamSpiral(int dim) {
@@ -43,12 +68,10 @@ std::optional<SquareLattice> GenerateUlamSpiral(int dim) {
   Position pos = {.row = dim - 1, .col = dim - 1};
   int dir_index = 0;
   int value = dim * dim;
-  std::vector<std::vector<bool>> visited(dim, std::vector<bool>(dim, false));
+  std::unordered_set<Position, PositionHash> visited;
   for (int i = 0; i < dim * dim; ++i) {
     /* We always write a number. If value is prime, we write value, otherwise,
-     * we write 0 as a placeholder. Note how we spiral inwards so that larger
-     * numbers are on the outside of the spiral and smaller ones are closer to
-     * the center. */
+     * we write 0 as a placeholder. */
     if (IsPrime(value)) {
       spiral[pos.row][pos.col] = value;
     } else {
@@ -56,18 +79,14 @@ std::optional<SquareLattice> GenerateUlamSpiral(int dim) {
     }
     value--;
 
-    visited[pos.row][pos.col] = true;
+    visited.insert(pos);
 
-    int row = pos.row + kDirections[dir_index].row;
-    int col = pos.col + kDirections[dir_index].col;
-    if ((row >= 0) && (row < dim) && (col >= 0) && (col < dim) &&
-        !visited[row][col]) { /* Continue moving in the current direction. */
-      pos.row = row;
-      pos.col = col;
+    Position candidate = kDirections[dir_index] + pos;
+    if (IsInBounds(candidate, dim) && !visited.count(candidate)) {
+      pos = candidate;
     } else { /* A change in direction is required. */
       dir_index = (dir_index + 1) % kDirections.size();
-      pos.row += kDirections[dir_index].row;
-      pos.col += kDirections[dir_index].col;
+      pos = kDirections[dir_index] + pos;
     }
   }
   return spiral;
