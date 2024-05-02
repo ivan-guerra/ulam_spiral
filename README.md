@@ -1,6 +1,8 @@
 # Ulam Spiral Visualization
 
-![Ulam Spiral 201](spiral.png)
+<p align="center">
+  <img src="spiral_512.png" />
+</p>
 
 `uspiral` is a Linux only command line tool that visualizes the [Ulam
 Spiral][1]. The visualization is a PNG whose white pixels represent composite
