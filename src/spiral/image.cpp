@@ -2,6 +2,7 @@
 
 #include <boost/gil.hpp>
 #include <boost/gil/extension/io/png.hpp>
+#include <boost/gil/typedefs.hpp>
 
 #include "spiral/spiral.h"
 
@@ -9,7 +10,7 @@ namespace ulam {
 
 void WriteLatticeToPng(const std::string& filename,
                        const ulam::SquareLattice& ulam_mat) {
-  boost::gil::rgb8_image_t img(ulam_mat.size(), ulam_mat.size());
+  boost::gil::gray8_image_t img(ulam_mat.size(), ulam_mat.size());
 
   auto output_view = boost::gil::view(img);
   for (int row = 0; row < output_view.height(); ++row) {
@@ -17,9 +18,9 @@ void WriteLatticeToPng(const std::string& filename,
       /* Prime numbers are output as black pixels whereas composite numbers are
        * output as white pixels. */
       if (ulam_mat[row][col]) {
-        output_view(col, row) = boost::gil::rgb8_pixel_t(0, 0, 0);
+        output_view(col, row) = boost::gil::gray8_pixel_t(0);
       } else {
-        output_view(col, row) = boost::gil::rgb8_pixel_t(255, 255, 255);
+        output_view(col, row) = boost::gil::gray8_pixel_t(255);
       }
     }
   }
