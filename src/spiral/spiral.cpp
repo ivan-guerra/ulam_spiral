@@ -30,17 +30,20 @@ struct PositionHash {
   }
 };
 
-[[nodiscard]] static bool IsPrime(int n) {
-  if (n <= 1) {
-    return false;
+[[nodiscard]] static std::unordered_set<int> SieveOfEratosthenes(int n) {
+  std::unordered_set<int> primes;
+  for (int i = 2; i < n + 1; ++i) {
+    primes.insert(i);
   }
 
-  for (int i = 2; i <= std::sqrt(n); i++) {
-    if (n % i == 0) {
-      return false;
+  for (int p = 2; p * p <= n; p++) {
+    if (primes.contains(p)) {
+      for (int i = p * p; i <= n; i += p) {
+        primes.erase(i);
+      }
     }
   }
-  return true;
+  return primes;
 }
 
 [[nodiscard]] bool IsInBounds(const Position& pos, int dim) {
@@ -64,6 +67,7 @@ std::optional<SquareLattice> GenerateUlamSpiral(int dim) {
       {.row = 1, .col = 0},  /* south */
   };
 
+  std::unordered_set<int> primes = SieveOfEratosthenes(dim * dim);
   SquareLattice spiral(dim, RowVect(dim, 0));
   Position pos = {.row = dim - 1, .col = dim - 1};
   int dir_index = 0;
@@ -72,7 +76,7 @@ std::optional<SquareLattice> GenerateUlamSpiral(int dim) {
   for (int i = 0; i < dim * dim; ++i) {
     /* We always write a number. If value is prime, we write value, otherwise,
      * we write 0 as a placeholder. */
-    if (IsPrime(value)) {
+    if (primes.contains(value)) {
       spiral[pos.row][pos.col] = value;
     } else {
       spiral[pos.row][pos.col] = 0;
