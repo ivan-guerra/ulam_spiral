@@ -1,0 +1,12 @@
+[package]
+name = "ulam_spiral"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "uspiral"
+path = "src/main.rs"
+
+[dependencies]
+image = "0.25.4"
+primes = "0.4.0"
