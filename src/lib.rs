@@ -2,7 +2,7 @@ use image::{GrayImage, Luma};
 use std::error::Error;
 use std::path::Path;
 
-pub fn generate_spiral_matrix(n: usize) -> Vec<Vec<u32>> {
+pub fn generate_ulam_matrix(n: usize) -> Vec<Vec<u32>> {
     let mut matrix = vec![vec![0; n]; n];
     let mut x = n / 2;
     let mut y = n / 2;
@@ -42,8 +42,8 @@ pub fn generate_spiral_matrix(n: usize) -> Vec<Vec<u32>> {
     matrix
 }
 
-pub fn write_ulam_png(n: usize, output_file: &Path) -> Result<(), Box<dyn Error>> {
-    let matrix = generate_spiral_matrix(n);
+pub fn write_ulam_img(n: usize, output_file: &Path) -> Result<(), Box<dyn Error>> {
+    let matrix = generate_ulam_matrix(n);
     let mut img = GrayImage::new(n as u32, n as u32);
 
     img.enumerate_pixels_mut().for_each(|(x, y, pixel)| {
