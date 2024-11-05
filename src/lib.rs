@@ -1,6 +1,20 @@
 use image::{GrayImage, Luma};
 use std::error::Error;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+
+pub struct Config {
+    pub dimension: u16,
+    pub output_file: PathBuf,
+}
+
+impl Config {
+    pub fn build(dimension: u16, output_file: PathBuf) -> Config {
+        Config {
+            dimension,
+            output_file,
+        }
+    }
+}
 
 pub fn generate_ulam_matrix(n: usize) -> Vec<Vec<u32>> {
     let mut matrix = vec![vec![0; n]; n];
@@ -55,6 +69,12 @@ pub fn write_ulam_img(n: usize, output_file: &Path) -> Result<(), Box<dyn Error>
     });
 
     img.save(output_file)?;
+
+    Ok(())
+}
+
+pub fn run(config: &Config) -> Result<(), Box<dyn Error>> {
+    write_ulam_img(config.dimension.into(), &config.output_file)?;
 
     Ok(())
 }
