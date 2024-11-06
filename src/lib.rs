@@ -40,6 +40,7 @@ pub fn generate_ulam_matrix(n: usize) -> Vec<Vec<u32>> {
         Direction::South(0, 1),
     ];
 
+    let sieve = primal::Sieve::new(n * n);
     let mut step = 1;
     while num <= (n * n) as u32 {
         for (i, direction) in directions.iter().enumerate() {
@@ -53,10 +54,11 @@ pub fn generate_ulam_matrix(n: usize) -> Vec<Vec<u32>> {
 
             for _ in 0..step {
                 if x < n && y < n && matrix[y][x] == 0 {
-                    matrix[y][x] = match primes::is_prime(num.into()) {
-                        true => num,
-                        false => 0,
-                    };
+                    if sieve.is_prime(num as usize) {
+                        matrix[y][x] = num;
+                    } else {
+                        matrix[y][x] = 0;
+                    }
                     num += 1;
                 }
 
