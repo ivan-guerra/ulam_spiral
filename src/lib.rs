@@ -2,6 +2,9 @@ use image::{GrayImage, Luma};
 use std::error::Error;
 use std::path::{Path, PathBuf};
 
+const MIN_DIMENSION: u16 = 128;
+const MAX_DIMENSION: u16 = 1024;
+
 pub struct Config {
     pub dimension: u16,
     pub output_file: PathBuf,
@@ -74,7 +77,92 @@ pub fn write_ulam_img(n: usize, output_file: &Path) -> Result<(), Box<dyn Error>
 }
 
 pub fn run(config: &Config) -> Result<(), Box<dyn Error>> {
+    if !(MIN_DIMENSION..=MAX_DIMENSION).contains(&config.dimension) {
+        return Err(format!(
+            "dimension {} is outside of the range of allowed dimensions [{},{}]",
+            config.dimension, MIN_DIMENSION, MAX_DIMENSION
+        )
+        .into());
+    }
+
     write_ulam_img(config.dimension.into(), &config.output_file)?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{generate_ulam_matrix, run, Config, MAX_DIMENSION, MIN_DIMENSION};
+    use std::path;
+    use testdir::testdir;
+
+    #[test]
+    fn dimension_of_zero_results_in_empty_matrix() {
+        let matrix = generate_ulam_matrix(0);
+        assert!(matrix.is_empty());
+    }
+
+    #[test]
+    fn generate_ulam_spiral_returns_valid_7_by_7_matrix() {
+        // 7x7 matrix taken from the Wikipedia page:
+        // https://en.wikipedia.org/wiki/Ulam_spiral#Construction
+        let expected_matrix = vec![
+            vec![37, 0, 0, 0, 0, 0, 31],
+            vec![0, 17, 0, 0, 0, 13, 0],
+            vec![0, 0, 5, 0, 3, 0, 29],
+            vec![0, 19, 0, 0, 2, 11, 0],
+            vec![41, 0, 7, 0, 0, 0, 0],
+            vec![0, 0, 0, 23, 0, 0, 0],
+            vec![43, 0, 0, 0, 47, 0, 0],
+        ];
+        let actual_matrix = generate_ulam_matrix(7);
+        assert_eq!(expected_matrix, actual_matrix);
+    }
+
+    #[test]
+    fn run_returns_error_on_too_small_dimension() {
+        let config = Config::build(MIN_DIMENSION - 1, path::PathBuf::from("/foo/bar/test.png"));
+        let result = run(&config);
+        assert!(
+            result.is_err(),
+            "expect the error regarding too small dimension value"
+        );
+    }
+
+    #[test]
+    fn run_returns_error_on_too_large_dimension() {
+        let config = Config::build(MAX_DIMENSION + 1, path::PathBuf::from("/foo/bar/test.png"));
+        let result = run(&config);
+        assert!(
+            result.is_err(),
+            "expect the error regarding too large dimension value"
+        );
+    }
+
+    #[test]
+    fn run_succeeds_with_valid_dimension() {
+        let test_dir: path::PathBuf = testdir!();
+        let path = test_dir.join("output.png");
+
+        let config = Config::build(256, path);
+        assert!(run(&config).is_ok());
+    }
+
+    #[test]
+    fn run_succeeds_with_min_dimension() {
+        let test_dir: path::PathBuf = testdir!();
+        let path = test_dir.join("output.png");
+
+        let config = Config::build(MIN_DIMENSION, path);
+        assert!(run(&config).is_ok());
+    }
+
+    #[test]
+    fn run_succeeds_with_max_dimension() {
+        let test_dir: path::PathBuf = testdir!();
+        let path = test_dir.join("output.png");
+
+        let config = Config::build(MAX_DIMENSION, path);
+        assert!(run(&config).is_ok());
+    }
 }
