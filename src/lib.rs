@@ -20,17 +20,37 @@ impl Config {
 }
 
 pub fn generate_ulam_matrix(n: usize) -> Vec<Vec<u32>> {
+    enum Direction {
+        North(i32, i32),
+        South(i32, i32),
+        East(i32, i32),
+        West(i32, i32),
+    }
+
     let mut matrix = vec![vec![0; n]; n];
     let mut x = n / 2;
     let mut y = n / 2;
     let mut num: u32 = 1;
 
-    // Clockwise movement: right, up, left, down.
-    let directions = [(1, 0), (0, -1), (-1, 0), (0, 1)];
-    let mut step = 1;
+    // Counter clockwise movement: right, up, left, down.
+    let directions = [
+        Direction::East(1, 0),
+        Direction::North(0, -1),
+        Direction::West(-1, 0),
+        Direction::South(0, 1),
+    ];
 
+    let mut step = 1;
     while num <= (n * n) as u32 {
-        for (i, &(dx, dy)) in directions.iter().enumerate() {
+        for (i, direction) in directions.iter().enumerate() {
+            // Match against the enum to extract dx and dy.
+            let (dx, dy) = match direction {
+                Direction::North(dx, dy) => (*dx, *dy),
+                Direction::South(dx, dy) => (*dx, *dy),
+                Direction::East(dx, dy) => (*dx, *dy),
+                Direction::West(dx, dy) => (*dx, *dy),
+            };
+
             for _ in 0..step {
                 if x < n && y < n && matrix[y][x] == 0 {
                     matrix[y][x] = match primes::is_prime(num.into()) {
@@ -41,8 +61,8 @@ pub fn generate_ulam_matrix(n: usize) -> Vec<Vec<u32>> {
                 }
 
                 // Move in the current direction.
-                x = ((x as isize) + dx) as usize;
-                y = ((y as isize) + dy) as usize;
+                x = ((x as isize) + dx as isize) as usize;
+                y = ((y as isize) + dy as isize) as usize;
 
                 if num > (n * n) as u32 {
                     return matrix;
