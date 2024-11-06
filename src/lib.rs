@@ -9,11 +9,8 @@ use primal::Sieve;
 use std::error::Error;
 use std::path::{Path, PathBuf};
 
-/// The minimum spiral matrix dimension supported.
-pub const MIN_DIMENSION: u16 = 128;
-
-/// The maximum spiral matrix dimension supported.
-pub const MAX_DIMENSION: u16 = 4096;
+const MIN_DIMENSION: u16 = 128;
+const MAX_DIMENSION: u16 = 4096;
 
 #[doc(hidden)]
 pub struct Config {
