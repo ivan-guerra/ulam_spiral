@@ -10,6 +10,7 @@ name = "uspiral"
 path = "src/main.rs"
 
 [dependencies]
+array2d = "0.3.2"
 image = "0.25.4"
 primal = "0.3.3"
 clap = {version = "4.5.20", features = ["derive"]}

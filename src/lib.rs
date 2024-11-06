@@ -1,4 +1,6 @@
+use array2d::Array2D;
 use image::{GrayImage, Luma};
+use primal::Sieve;
 use std::error::Error;
 use std::path::{Path, PathBuf};
 
@@ -19,7 +21,7 @@ impl Config {
     }
 }
 
-pub fn generate_ulam_matrix(n: usize) -> Vec<Vec<u32>> {
+pub fn generate_ulam_matrix(n: usize) -> Array2D<u32> {
     enum Direction {
         North(i32, i32),
         South(i32, i32),
@@ -27,7 +29,8 @@ pub fn generate_ulam_matrix(n: usize) -> Vec<Vec<u32>> {
         West(i32, i32),
     }
 
-    let mut matrix = vec![vec![0; n]; n];
+    // Initialize the matrix with zeros.
+    let mut matrix = Array2D::filled_with(0, n, n);
     let mut x = n / 2;
     let mut y = n / 2;
     let mut num: u32 = 1;
@@ -40,7 +43,7 @@ pub fn generate_ulam_matrix(n: usize) -> Vec<Vec<u32>> {
         Direction::South(0, 1),
     ];
 
-    let sieve = primal::Sieve::new(n * n);
+    let sieve = Sieve::new(n * n);
     let mut step = 1;
     while num <= (n * n) as u32 {
         for (i, direction) in directions.iter().enumerate() {
@@ -53,11 +56,11 @@ pub fn generate_ulam_matrix(n: usize) -> Vec<Vec<u32>> {
             };
 
             for _ in 0..step {
-                if x < n && y < n && matrix[y][x] == 0 {
+                if x < n && y < n && matrix[(y, x)] == 0 {
                     if sieve.is_prime(num as usize) {
-                        matrix[y][x] = num;
+                        matrix[(y, x)] = num;
                     } else {
-                        matrix[y][x] = 0;
+                        matrix[(y, x)] = 0;
                     }
                     num += 1;
                 }
@@ -86,7 +89,7 @@ pub fn write_ulam_img(n: usize, output_file: &Path) -> Result<(), Box<dyn Error>
     let mut img = GrayImage::new(n as u32, n as u32);
 
     img.enumerate_pixels_mut().for_each(|(x, y, pixel)| {
-        let value = match matrix[y as usize][x as usize] {
+        let value = match matrix[(y as usize, x as usize)] {
             0 => 255,
             _ => 0,
         };
@@ -121,7 +124,7 @@ mod test {
     #[test]
     fn dimension_of_zero_results_in_empty_matrix() {
         let matrix = generate_ulam_matrix(0);
-        assert!(matrix.is_empty());
+        assert_eq!(matrix.num_elements(), 0);
     }
 
     #[test]
@@ -138,7 +141,7 @@ mod test {
             vec![43, 0, 0, 0, 47, 0, 0],
         ];
         let actual_matrix = generate_ulam_matrix(7);
-        assert_eq!(expected_matrix, actual_matrix);
+        assert_eq!(actual_matrix.as_rows(), expected_matrix);
     }
 
     #[test]
