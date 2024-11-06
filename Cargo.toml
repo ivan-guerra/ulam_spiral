@@ -2,6 +2,8 @@
 name = "ulam_spiral"
 version = "0.1.0"
 edition = "2021"
+description = "Visualize the Ulam spiral."
+license = "Unlicense"
 
 [[bin]]
 name = "uspiral"
