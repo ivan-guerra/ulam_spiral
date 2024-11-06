@@ -1,12 +1,21 @@
+//! `ulam_spiral` provides a library for generating NxN [Ulam
+//! spirals](https://en.wikipedia.org/wiki/Ulam_spiral#). A binary, `uspiral`, is also provided
+//! which allows the user to generate a visualization of a Ulam spiral as a grayscale image. Any
+//! [image format](https://github.com/image-rs/image/blob/main/README.md#supported-image-formats)
+//! supported by the [image] crate may be used.
 use array2d::Array2D;
 use image::{GrayImage, Luma};
 use primal::Sieve;
 use std::error::Error;
 use std::path::{Path, PathBuf};
 
-const MIN_DIMENSION: u16 = 128;
-const MAX_DIMENSION: u16 = 4096;
+/// The minimum spiral matrix dimension supported.
+pub const MIN_DIMENSION: u16 = 128;
 
+/// The maximum spiral matrix dimension supported.
+pub const MAX_DIMENSION: u16 = 4096;
+
+#[doc(hidden)]
 pub struct Config {
     pub dimension: u16,
     pub output_file: PathBuf,
@@ -21,6 +30,22 @@ impl Config {
     }
 }
 
+/// Returns the Ulam spiral matrix of size `n x n`.
+///
+/// # Examples
+///
+/// ```rust
+/// let expected_matrix = vec![
+///     vec![37, 0, 0, 0, 0, 0, 31],
+///     vec![0, 17, 0, 0, 0, 13, 0],
+///     vec![0, 0, 5, 0, 3, 0, 29],
+///     vec![0, 19, 0, 0, 2, 11, 0],
+///     vec![41, 0, 7, 0, 0, 0, 0],
+///     vec![0, 0, 0, 23, 0, 0, 0],
+///     vec![43, 0, 0, 0, 47, 0, 0],
+/// ];
+/// assert_eq!(ulam_spiral::generate_ulam_matrix(7).as_rows(), expected_matrix);
+/// ```
 pub fn generate_ulam_matrix(n: usize) -> Array2D<u32> {
     enum Direction {
         North(i32, i32),
@@ -84,6 +109,7 @@ pub fn generate_ulam_matrix(n: usize) -> Array2D<u32> {
     matrix
 }
 
+/// Writes the Ulam spiral matrix as a grayscale image to the specified output file.
 pub fn write_ulam_img(n: usize, output_file: &Path) -> Result<(), Box<dyn Error>> {
     let matrix = generate_ulam_matrix(n);
     let mut img = GrayImage::new(n as u32, n as u32);
@@ -101,6 +127,7 @@ pub fn write_ulam_img(n: usize, output_file: &Path) -> Result<(), Box<dyn Error>
     Ok(())
 }
 
+#[doc(hidden)]
 pub fn run(config: &Config) -> Result<(), Box<dyn Error>> {
     if !(MIN_DIMENSION..=MAX_DIMENSION).contains(&config.dimension) {
         return Err(format!(
