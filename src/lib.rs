@@ -3,7 +3,7 @@ use std::error::Error;
 use std::path::{Path, PathBuf};
 
 const MIN_DIMENSION: u16 = 128;
-const MAX_DIMENSION: u16 = 1024;
+const MAX_DIMENSION: u16 = 4096;
 
 pub struct Config {
     pub dimension: u16,
