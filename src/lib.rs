@@ -7,19 +7,22 @@ use array2d::Array2D;
 use image::{GrayImage, Luma};
 use primal::Sieve;
 use std::error::Error;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
-const MIN_DIMENSION: u16 = 128;
-const MAX_DIMENSION: u16 = 4096;
-
-#[doc(hidden)]
+/// Ulam spiral image configuration.
 pub struct Config {
+    /// The dimension of the Ulam spiral.
     pub dimension: u16,
+    /// The path to the output image file.
+    ///
+    /// Note, `output_file`'s extension determines the image format. For example, `ulam.png`
+    /// outputs a PNG.
     pub output_file: PathBuf,
 }
 
 impl Config {
-    pub fn build(dimension: u16, output_file: PathBuf) -> Config {
+    /// Creates a new `Config` instance.
+    pub fn new(dimension: u16, output_file: PathBuf) -> Config {
         Config {
             dimension,
             output_file,
@@ -51,7 +54,6 @@ pub fn generate_ulam_matrix(n: usize) -> Array2D<u32> {
         West(i32, i32),
     }
 
-    // Initialize the matrix with zeros.
     let mut matrix = Array2D::filled_with(0, n, n);
     let mut x = n / 2;
     let mut y = n / 2;
@@ -69,7 +71,6 @@ pub fn generate_ulam_matrix(n: usize) -> Array2D<u32> {
     let mut step = 1;
     while num <= (n * n) as u32 {
         for (i, direction) in directions.iter().enumerate() {
-            // Match against the enum to extract dx and dy.
             let (dx, dy) = match direction {
                 Direction::North(dx, dy) => (*dx, *dy),
                 Direction::South(dx, dy) => (*dx, *dy),
@@ -106,10 +107,16 @@ pub fn generate_ulam_matrix(n: usize) -> Array2D<u32> {
     matrix
 }
 
-/// Writes the Ulam spiral matrix as a grayscale image to the specified output file.
-pub fn write_ulam_img(n: usize, output_file: &Path) -> Result<(), Box<dyn Error>> {
-    let matrix = generate_ulam_matrix(n);
-    let mut img = GrayImage::new(n as u32, n as u32);
+/// Runs the Ulam spiral image generation process based on the provided configuration.
+///
+/// # Returns
+///
+/// Returns `Ok(())` if image generation succeeds, or an error if there is an issue saving the
+/// output image.
+pub fn run(config: &Config) -> Result<(), Box<dyn Error>> {
+    let n = u32::from(config.dimension);
+    let mut img = GrayImage::new(n, n);
+    let matrix = generate_ulam_matrix(config.dimension as usize);
 
     img.enumerate_pixels_mut().for_each(|(x, y, pixel)| {
         let value = match matrix[(y as usize, x as usize)] {
@@ -119,31 +126,19 @@ pub fn write_ulam_img(n: usize, output_file: &Path) -> Result<(), Box<dyn Error>
         *pixel = Luma([value]);
     });
 
-    img.save(output_file)?;
-
-    Ok(())
-}
-
-#[doc(hidden)]
-pub fn run(config: &Config) -> Result<(), Box<dyn Error>> {
-    if !(MIN_DIMENSION..=MAX_DIMENSION).contains(&config.dimension) {
-        return Err(format!(
-            "dimension {} is outside of the range of allowed dimensions [{},{}]",
-            config.dimension, MIN_DIMENSION, MAX_DIMENSION
-        )
-        .into());
-    }
-
-    write_ulam_img(config.dimension.into(), &config.output_file)?;
+    img.save(&config.output_file)?;
 
     Ok(())
 }
 
 #[cfg(test)]
 mod test {
-    use crate::{generate_ulam_matrix, run, Config, MAX_DIMENSION, MIN_DIMENSION};
+    use super::*;
     use std::path;
     use testdir::testdir;
+
+    const MIN_DIMENSION: u16 = 128;
+    const MAX_DIMENSION: u16 = 4096;
 
     #[test]
     fn dimension_of_zero_results_in_empty_matrix() {
@@ -169,31 +164,11 @@ mod test {
     }
 
     #[test]
-    fn run_returns_error_on_too_small_dimension() {
-        let config = Config::build(MIN_DIMENSION - 1, path::PathBuf::from("/foo/bar/test.png"));
-        let result = run(&config);
-        assert!(
-            result.is_err(),
-            "expect the error regarding too small dimension value"
-        );
-    }
-
-    #[test]
-    fn run_returns_error_on_too_large_dimension() {
-        let config = Config::build(MAX_DIMENSION + 1, path::PathBuf::from("/foo/bar/test.png"));
-        let result = run(&config);
-        assert!(
-            result.is_err(),
-            "expect the error regarding too large dimension value"
-        );
-    }
-
-    #[test]
     fn run_succeeds_with_valid_dimension() {
         let test_dir: path::PathBuf = testdir!();
         let path = test_dir.join("output.png");
 
-        let config = Config::build(256, path);
+        let config = Config::new(256, path);
         assert!(run(&config).is_ok());
     }
 
@@ -202,7 +177,7 @@ mod test {
         let test_dir: path::PathBuf = testdir!();
         let path = test_dir.join("output.png");
 
-        let config = Config::build(MIN_DIMENSION, path);
+        let config = Config::new(MIN_DIMENSION, path);
         assert!(run(&config).is_ok());
     }
 
@@ -211,7 +186,7 @@ mod test {
         let test_dir: path::PathBuf = testdir!();
         let path = test_dir.join("output.png");
 
-        let config = Config::build(MAX_DIMENSION, path);
+        let config = Config::new(MAX_DIMENSION, path);
         assert!(run(&config).is_ok());
     }
 }
